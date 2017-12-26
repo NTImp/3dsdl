@@ -40,22 +40,35 @@ int main(int argc, char** argv)
 	Renderer renderer(render);
 	renderer.setResolution(640, 480);
 
-	Wall w1 = {
-		VectorF(10, 10), VectorF(-10, 10),
-		255, 0, 0
+	Sector s1 = {
+		{
+			{VectorF(-10, 10), VectorF(10, 10), 0},
+			{VectorF(10, 10), VectorF(10, -20), 0},
+			{VectorF(10, -20), VectorF(-5, -20), 0},
+			{VectorF(-5, -20), VectorF(-5, 0), 0},
+			{VectorF(-5, 0), VectorF(-10, 0), 0},
+			{VectorF(-10, 0), VectorF(-10, 10), 0}
+		},
+		{50, 50, 255},
+		{100, 100, 100},
+		3,
+		0
 	};
-	Wall w2 = {
-		VectorF(10, 10), VectorF(10, -10),
-		255, 255, 0
-	};
-	Wall w3 = {
-		VectorF(10, -10), VectorF(-10, -10),
-		0, 255, 255
-	};
-	Wall w4 = {
-		VectorF(-10, -10), VectorF(-10, 10),
-		50, 255, 155
-	};
+
+	/*Sector s1 = {
+		{
+			{VectorF(-10, 10), VectorF(10, 10), 0},
+			{VectorF(10, 10), VectorF(10, -10), 0},
+			{VectorF(10, -10), VectorF(-10, -10), 0},
+			{VectorF(-10, -10), VectorF(-10, 10), 0}
+		},
+		{50, 50, 255},
+		{100, 100, 100},
+		3,
+		0
+	};*/
+
+	Level level({s1});
 
 	while(running)
 	{
@@ -94,10 +107,7 @@ int main(int argc, char** argv)
 
 		renderer.setCamera(camPos, camDir, camH);
 
-		renderer.renderWall(w1);
-		renderer.renderWall(w2);
-		renderer.renderWall(w3);
-		renderer.renderWall(w4);
+		renderer.renderLevel(level);
 
 		SDL_RenderPresent(render);
 

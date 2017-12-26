@@ -62,12 +62,51 @@ void Renderer::setCamera(VectorF position, float direction, float height)
 	m_camH = height;
 }
 
+void Renderer::renderLevel(const Level& level)
+{
+	m_remainingLines = m_w;
+	m_linesDrawn.resize(m_w);
+	for (auto& line : m_linesDrawn)
+		line = 0;
 
-void Renderer::renderWall(const Wall& w)
+	iterateNode(level.getRoot());
+}
+
+void Renderer::iterateNode(const Node& n)
+{
+	VectorF b = n.line.w.start - n.line.w.end;
+	b = b / b.length();
+
+	float bx = b.x;
+	b.x = -b.y;
+	b.y = bx;
+
+	//if cy is positive player is above the line of the current node and under it if not
+	float cy = (m_camPos - n.line.w.start) * b;
+
+	if (cy > 0)
+	{
+		if (n.right)
+			iterateNode(*n.right);
+		renderLine(n.line);
+		if (n.left)
+			iterateNode(*n.left);
+	}
+	else
+	{
+		if (n.left)
+			iterateNode(*n.left);
+		renderLine(n.line);
+		if (n.right)
+			iterateNode(*n.right);
+	}
+}
+
+void Renderer::renderLine(const Line& l)
 {
 	VectorF ps, pe; //start and end point in camera perspective
-	ps = toCamCoords(w.start);
-	pe = toCamCoords(w.end);
+	ps = toCamCoords(l.w.start);
+	pe = toCamCoords(l.w.end);
 
 	float length = (ps - pe).length();
 
@@ -98,8 +137,8 @@ void Renderer::renderWall(const Wall& w)
 	
 	//The four corners in perspective
 	VectorF pst, psd, pet, ped;
-	perspective(ps, pst, psd);
-	perspective(pe, pet, ped);
+	perspective(ps, pst, psd, l.hfloor, l.hroof);
+	perspective(pe, pet, ped, l.hfloor, l.hroof);
 
 
 	//The four corners in screen coordinates
@@ -126,8 +165,13 @@ void Renderer::renderWall(const Wall& w)
 	int ct, cb;
 	float tn; //Texture coord normalized
 	float in; //i normalized
-	for (int i = max(0, from); i < min(m_w, to); i++)
+	for (int i = max(0, from); i < min(m_w - 1, to); i++)
 	{
+		if (m_linesDrawn[i])
+			continue;
+		m_remainingLines--;
+		m_linesDrawn[i] = true;
+
 		in = (float)(i - from) / dx;
 		ct = yfromTop + (i - from) * ydt;
 		cb = yfromBot + (i - from) * ydb;
@@ -162,10 +206,10 @@ VectorF Renderer::toCamCoords(const VectorF& point)
 	return VectorF((point - m_camPos) * VectorF(m_camDir), (point - m_camPos) * VectorF(m_camDir + 90));
 }
 
-void Renderer::perspective(const VectorF& point, VectorF& top, VectorF& bottom)
+void Renderer::perspective(const VectorF& point, VectorF& top, VectorF& bottom, float floor, float roof)
 {
-	top = VectorF(point.x / point.y, (3 - m_camH) / point.y);
-	bottom = VectorF(point.x / point.y, (-m_camH) / point.y);
+	top = VectorF(point.x / point.y, (roof - m_camH) / point.y);
+	bottom = VectorF(point.x / point.y, (floor -m_camH) / point.y);
 }
 
 VectorI Renderer::toScreenCoords(const VectorF& point)
