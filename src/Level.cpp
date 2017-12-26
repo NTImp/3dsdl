@@ -2,7 +2,7 @@
 
 #include <iostream>
 
-/*void printLevel(const Node& root, int identation)
+void printLevel(const Node& root, int identation)
 {
 	for (int i=0; i < identation; i++)
 		std::cout << " ";
@@ -12,7 +12,7 @@
 		printLevel(*root.right, identation + 1);
 	if (root.left)
 		printLevel(*root.left, identation + 1);
-}*/
+}
 
 Level::Level(const std::vector<Sector>& raw)
 {
@@ -33,6 +33,7 @@ Level::Level(const std::vector<Sector>& raw)
 	}
 
 	makeNode(tree, lines);
+	printLevel(tree, 0);
 }
 
 void Level::splitLine(const Line& split, const Line& line, Line& l1, Line& l2)
@@ -60,7 +61,7 @@ void Level::splitLine(const Line& split, const Line& line, Line& l1, Line& l2)
 void Level::makeNode(Node& node, const std::vector<Line>& lines)
 {
 	std::vector<Line> l, r;
-	node.line = lines[lines.size() / 2];
+	node.line = lines[0];
 
 	//b1 and b2 make an orthonormal base with b1 inside the split line
 	VectorF b1 = node.line.w.start - node.line.w.end;
@@ -69,13 +70,9 @@ void Level::makeNode(Node& node, const std::vector<Line>& lines)
 	VectorF b2 = VectorF(-b1.y, b1.x); //create a perpendicular vector to b1
 
 	VectorF p = node.line.w.start; //A point from the split rect
-	for (int i = 0; i < lines.size(); i++)
+	for (int i = 1; i < lines.size(); i++)
 	{
 		auto& line = lines[i];
-
-		//ignore if is the split line
-		if (i == lines.size() / 2)
-			continue;
 
 		//The y coordinates of the two extremes of the current line in the base <b1, b2>
 		float 	y1 = (line.w.start - p) * b2,
@@ -129,7 +126,7 @@ void Level::makeNode(Node& node, const std::vector<Line>& lines)
 			}
 			else
 			{
-				//The line is a single point and can be ignored
+				r.push_back(line);
 			}
 		}
 	}

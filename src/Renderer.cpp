@@ -169,9 +169,7 @@ void Renderer::renderLine(const Line& l)
 	{
 		if (m_linesDrawn[i])
 			continue;
-		m_remainingLines--;
-		m_linesDrawn[i] = true;
-
+		
 		in = (float)(i - from) / dx;
 		ct = yfromTop + (i - from) * ydt;
 		cb = yfromBot + (i - from) * ydb;
@@ -190,12 +188,17 @@ void Renderer::renderLine(const Line& l)
 		dest.h = cb - ct;
 		source.x = (int)(tn* txtW)%txtW;
 
-		SDL_SetRenderDrawColor(m_render, 0, 0, 0xff, 0);
+		SDL_SetRenderDrawColor(m_render, l.roof.r, l.roof.g, l.roof.b, 0);
 		SDL_RenderDrawLine(m_render, i, max(ct, 0), i, 0);
 
-		SDL_RenderCopy(m_render, m_txtWall, &source, &dest);
+		if (l.w.texture)
+		{
+			SDL_RenderCopy(m_render, m_txtWall, &source, &dest);
+			m_remainingLines--;
+			m_linesDrawn[i] = true;
+		}
 
-		SDL_SetRenderDrawColor(m_render, 0x55, 0x55, 0x55, 0);
+		SDL_SetRenderDrawColor(m_render, l.floor.r, l.floor.g, l.floor.b, 0);
 		SDL_RenderDrawLine(m_render, i, min(cb, m_h), i, m_h);
 	}
 

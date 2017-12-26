@@ -40,14 +40,16 @@ int main(int argc, char** argv)
 	Renderer renderer(render);
 	renderer.setResolution(640, 480);
 
+	byte b;
+
 	Sector s1 = {
 		{
-			{VectorF(-10, 10), VectorF(10, 10), 0},
-			{VectorF(10, 10), VectorF(10, -20), 0},
-			{VectorF(10, -20), VectorF(-5, -20), 0},
+			{VectorF(-10, 10), VectorF(10, 10), &b},
+			{VectorF(10, 10), VectorF(10, -20), &b},
+			{VectorF(10, -20), VectorF(-5, -20), &b},
 			{VectorF(-5, -20), VectorF(-5, 0), 0},
 			{VectorF(-5, 0), VectorF(-10, 0), 0},
-			{VectorF(-10, 0), VectorF(-10, 10), 0}
+			{VectorF(-10, 0), VectorF(-10, 10), &b}
 		},
 		{50, 50, 255},
 		{100, 100, 100},
@@ -55,20 +57,20 @@ int main(int argc, char** argv)
 		0
 	};
 
-	/*Sector s1 = {
+	Sector s2 = {
 		{
-			{VectorF(-10, 10), VectorF(10, 10), 0},
-			{VectorF(10, 10), VectorF(10, -10), 0},
-			{VectorF(10, -10), VectorF(-10, -10), 0},
-			{VectorF(-10, -10), VectorF(-10, 10), 0}
+			{VectorF(-10, 0), VectorF(-5, 0), 0},
+			{VectorF(-5, 0), VectorF(-5, -20), &b},
+			{VectorF(-5, -20), VectorF(-10, -20), &b},
+			{VectorF(-10, -20), VectorF(-10, 0), &b}
 		},
 		{50, 50, 255},
-		{100, 100, 100},
-		3,
-		0
-	};*/
+		{10, 150, 100},
+		4,
+		0.5
+	};
 
-	Level level({s1});
+	Level level({s1, s2});
 
 	while(running)
 	{
